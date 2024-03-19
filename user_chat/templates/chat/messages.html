@@ -1,0 +1,67 @@
+<!-- user_chat/templates/chat/messages.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Messages</title>
+</head>
+
+<body>
+   
+    <h1>Chat Messages</h1>
+    <div id="chat-messages">
+        <!-- Aquí se mostrarán los mensajes -->
+    </div>
+
+    <form id="message-form">
+        {% csrf_token %}
+        <label for="message-input">Mensaje:</label>
+        <input type="text" id="message-input" name="message" required>
+        <button type="submit">Enviar</button>
+    </form>
+
+    <script>
+        var socket = new WebSocket("ws://" + window.location.host + "/ws/messages/");
+
+        socket.onmessage = function (e) {
+            var data = JSON.parse(e.data);
+
+            // Verificar que chatDiv no sea nulo o indefinido
+            var chatDiv = document.getElementById('chat-messages');
+            if (chatDiv) {
+                // Limpiar el contenido actual
+                chatDiv.innerHTML = '';
+
+                if (data.author && data.content && data.timestamp) {
+                    // Caso 1: El formato tiene propiedades directas
+                    var messageDiv = document.createElement('div');
+                    messageDiv.innerHTML = '<p><strong>' + data.author + '</strong>: ' + data.content + '</p><p><small>' + data.timestamp + '</small></p>';
+                    chatDiv.appendChild(messageDiv);
+                } else if (data.messages) {
+                    // Caso 2: El formato tiene una lista de mensajes
+                    data.messages.forEach(function (message) {
+                        var messageDiv = document.createElement('div');
+                        messageDiv.innerHTML = '<p><strong>' + message.author + '</strong>: ' + message.content + '</p>';
+                        chatDiv.appendChild(messageDiv);
+                    });
+                }
+
+                // Actualizar manualmente la interfaz de usuario
+                chatDiv.scrollTop = chatDiv.scrollHeight;
+            }
+        };
+
+        document.getElementById('message-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            var messageInput = document.getElementById('message-input');
+            var message = messageInput.value;
+
+            // Enviar el mensaje al servidor
+            socket.send(JSON.stringify({ 'message': message }));
+
+            // Limpiar el campo de entrada
+            messageInput.value = '';
+        });
+    </script>
+</body>
+</html>

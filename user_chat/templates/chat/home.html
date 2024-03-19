@@ -1,0 +1,25 @@
+<!-- user_chat/templates/chat/home.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+</head>
+<body>
+    {% if user.is_authenticated %}
+        <p>Bienvenido, {{ user.username }}!</p>
+        <a href="{% url 'messages' %}">Ir a mensajes</a>
+    {% else %}
+        <h2>Iniciar sesión</h2>
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            <label for="username">Nombre de usuario:</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">Iniciar sesión</button>
+        </form>
+    {% endif %}
+</body>
+</html>
