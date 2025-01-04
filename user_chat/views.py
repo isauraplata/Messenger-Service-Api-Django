@@ -8,7 +8,7 @@ from .models import Message
 
 def home(request):
     if request.user.is_authenticated:
-        return redirect('chat_messages')  # Renombrado para evitar conflictos
+        return redirect('chat_messages')  
     
     if request.method == 'POST':
         form = AuthenticationForm(request, request.POST)
@@ -18,7 +18,7 @@ def home(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('chat_messages')  # Renombrado para evitar conflictos
+                return redirect('chat/chat_messages')  
             else:
                 messages.error(request, 'Usuario o contraseña incorrectos.')
     else:
@@ -27,6 +27,6 @@ def home(request):
     return render(request, 'chat/home.html', {'form': form})
 
 
-def chat_messages(request):  # Renombrado para evitar conflictos
+def chat_messages(request):  
     all_messages = Message.objects.all()
     return render(request, 'chat/messages.html', {'messages': all_messages})
